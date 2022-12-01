@@ -1,4 +1,4 @@
-# Run the demo
+# WebRTC-WebTorrent-tracker-communication-demo
 
 ## Prerequirements
 
