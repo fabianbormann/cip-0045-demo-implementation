@@ -4,48 +4,49 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://chr15m.github.io/bugout/bugout.min.js"></script>
+    <script src="https://fabianbormann.github.io/meerkat/meerkat.min.js"></script>
     <script>
-        var bugout = new Bugout({ 
-            seed: localStorage["bugout-demo-server-seed"],
+        const meerkat = new Meerkat({ 
+            seed: 'BofdLENCoCxJroaUcjbj9gyhiozjR6o6ZnxgMD6TgtvpS6DbGsWi',
             announce: [
-                'udp://tracker.opentrackr.org:1337/announce', 
-                'udp://open.tracker.cl:1337/announce', 
-                'udp://opentracker.i2p.rocks:6969/announce', 
-                'https://opentracker.i2p.rocks:443/announce',
                 'wss://tracker.files.fm:7073/announce',
-                'wss://spacetradersapi-chatbox.herokuapp.com:443/announce',
-                'ws://tracker.files.fm:7072/announce'
-            ]
+                'wss://tracker.btorrent.xyz',
+                'ws://tracker.files.fm:7072/announce',
+                'wss://tracker.openwebtorrent.com:443/announce',
+            ],
+            loggingEnabled: true
          });
-        localStorage["bugout-demo-server-seed"] = bugout.seed;
+
+        const logger = meerkat.logger;
+        logger.info(`The generated meerkat address is: ${meerkat.address()}`)
 
         var connected = false;
-        bugout.on("connections", function (clients) {
+        meerkat.on("connections", function (clients) {
             if (clients == 0 && connected == false) {
                 connected = true;
-                console.log("[info]: server ready");
+                logger.info("server ready");
             }
-            console.log(`[info]: ${clients} clients connected`);
+            logger.info(`${clients} clients connected`);
         });
 
-        bugout.register("api", function (address, args, callback) {
+        meerkat.register("api", function (address, args, callback) {
             const api = { version: args.api.version, address: address }
 
             for (method of args.api.methods) {
                 api[method] = () => new Promise((resolve, reject) => {
-                    bugout.rpc(address, method, {}, (result) => resolve(result));
+                    meerkat.rpc(address, method, {}, (result) => resolve(result));
                 });
             }
 
             window.cardano = window.cardano || {};
             window.cardano[args.api.name] = api;
-            console.log(`[info]: injected api of ${args.api.name} into window.cardano`);
+            logger.info(`injected api of ${args.api.name} into window.cardano`);
         });
     </script>
     <title>DApp</title>
 </head>
 <body>
     <h1>Simple Example Dapp</h1>
+    <p>Please open the console to see Meerkat in action.</p>
 </body>
 </html>
