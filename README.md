@@ -1,12 +1,10 @@
-# WebRTC-WebTorrent-tracker-communication-demo
+# CIP-???? Demo Implementation
 
-## Prerequirements
-
-- node>=16.x.x, npm>=8.x.x
+This is a demo implementation of [CIP-????](https://github.com/cardano-foundation/CIPs/pull/395) that uses [cardano-peer-connect](https://github.com/fabianbormann/cardano-peer-connect).
 
 ## Getting Started
 
-### Run the Server
+### Run the Server (aka the dApp)
 
 Open the [dApp.html](./dApp.html) file and your dev tools to see the console log outputs.
 
@@ -14,57 +12,23 @@ Open the [dApp.html](./dApp.html) file and your dev tools to see the console log
 
 The server (dApp) is just a blank VSCode HTML5 template with the following changes:
 
-1. Import Meerkat in the header
+1. Import cardano-peer-connect in the header
 
 ```html
-<script src="https://fabianbormann.github.io/meerkat/meerkat.min.js"></script>
+<script src="https://fabianbormann.github.io/cardano-peer-connect/bundle.min.js"></script>
 ```
 
-2. Create a new Meerkat instance with a fixed seed to make Meerkat always generating the same identifier (address)
+2. Create a new DAppPeerConnect instance, plot the QR code and print the address (identifier)
 
 ```html
 <script>
-  const meerkat = new Meerkat({
-    seed: 'BofdLENCoCxJroaUcjbj9gyhiozjR6o6ZnxgMD6TgtvpS6DbGsWi',
-    announce: [
-      'wss://tracker.files.fm:7073/announce',
-      'wss://tracker.btorrent.xyz',
-      'ws://tracker.files.fm:7072/announce',
-      'wss://tracker.openwebtorrent.com:443/announce',
-    ],
-    loggingEnabled: true,
-  });
-
-  const logger = meerkat.logger;
-  logger.info(`The generated meerkat address is: ${meerkat.address()}`);
-
-  var connected = false;
-  meerkat.on('connections', function (clients) {
-    if (clients == 0 && connected == false) {
-      connected = true;
-      logger.info('server ready');
-    }
-    logger.info(`${clients} clients connected`);
-  });
-
-  meerkat.register('api', function (address, args, callback) {
-    const api = { version: args.api.version, address: address };
-
-    for (method of args.api.methods) {
-      api[method] = () =>
-        new Promise((resolve, reject) => {
-          meerkat.rpc(address, method, {}, (result) => resolve(result));
-        });
-    }
-
-    window.cardano = window.cardano || {};
-    window.cardano[args.api.name] = api;
-    logger.info(`injected api of ${args.api.name} into window.cardano`);
-  });
+  const dAppConnect = new CardanoPeerConnect.DAppPeerConnect();
+  dAppConnect.generateQRCode(document.getElementById('qr-code'));
+  document.getElementById('address').innerText = dAppConnect.getAddress();
 </script>
 ```
 
-This meerkat instance is now waiting for clients to connect and it will provide an api rpc method to allow a client to inject it's api to the global window object.
+The DAppPeerConnect instance is now waiting for clients to connect. It provides api rpc methods under the hood to allow a client to connect and inject it's api to the global window object.
 
 ## Client (aka Wallet App)
 
@@ -98,57 +62,51 @@ to execute the remote call and get the reward address from your Wallet (dApp.htm
 
 The wallet app is actually the result of:
 
-1. The blank ionic react template with Meerkat as an additional npm package
+1. The blank ionic react template with cardano-peer-connect as an additional npm package
 
 ```zsh
 ionic start ionic-app blank --type react
 cd ionic-app
-npm i @fabianbormann/meerkat
+npm i @fabianbormann/cardano-peer-connect
 ```
 
-2. Meerkat import and initialization added to the [index.tsx](./ionic-app/src/index.tsx) file
+2. An Implementation of the abstract class `CardanoPeerConnect` within [BoostPeerConnect.tsx](./ionic-app/src/BoostPeerConnect.tsx) (feel free to adjust the name to e.g. `[MyWalletName]PeerConnect`)
+
+3. BoostPeerConnect is now ready to use. Please see the example usage in [Home.tsx](./ionic-app/src/pages/Home.tsx)
 
 ```ts
-import Meerkat from '@fabianbormann/meerkat';
+import { BoostPeerConnect } from '../BoostPeerConnect';
 
 ...
 
-const meerkat = new Meerkat({
-  identifier: 'bZqy8Big6pWTDeFTHz2Z6KLmuniqwRNXMT',
-  announce: [
-    'wss://tracker.files.fm:7073/announce',
-    'wss://tracker.btorrent.xyz',
-    'ws://tracker.files.fm:7072/announce',
-    'wss://tracker.openwebtorrent.com:443/announce',
-  ],
-});
-
-const logger = meerkat.logger;
-logger.info(`The generated meerkat address is: ${meerkat.address()}`);
-
-meerkat.on('server', function () {
-  console.log('[info]: connected to server');
-  meerkat.rpc(
-    'bZqy8Big6pWTDeFTHz2Z6KLmuniqwRNXMT',
-    'api',
-    {
-      api: {
-        version: '1.0.3',
-        name: 'boostwallet',
-        methods: ['getRewardAddresses'],
-      },
-    },
-    () => {}
+const connectWithDApp = () => {
+  const seed = boostPeerConnect.current.connect(
+    dAppIdentifier,
+    [
+      'https://pro.passwordchaos.gimbalabs.io',
+      'wss://tracker.files.fm:7073/announce',
+      'wss://tracker.btorrent.xyz',
+      'ws://tracker.files.fm:7072/announce',
+      'wss://tracker.openwebtorrent.com:443/announce',
+    ],
+    localStorage.getItem('meerkat-boostwallet-seed')
   );
-});
+  localStorage.setItem('meerkat-boostwallet-seed', seed);
+};
 
-meerkat.register(
-  'getRewardAddresses',
-  (address: string, args: any, callback: Function) => {
-    callback(['e1820506cb0ce54ae755b2512b6cf31856d7265e8792cb86afc94e0872']);
-  }
-);
+return (
+...
+  <IonInput
+    onIonChange={(event) =>
+      setDAppIdentifier(`${event.target.value}`)
+    }
+    placeholder="dApp identifier"
+  ></IonInput>
+  ...
+  <IonButton onClick={connectWithDApp} fill="solid">
+    Connect
+  </IonButton>
+...
+)
+
 ```
-
-The identifier bZqy8Big6pWTDeFTHz2Z6KLmuniqwRNXMT is the address generated by the Meerkat server instance (dApp.html).
-After connecting the client will inject it's api (available rpc methods) into the dApp.html by using it's api rpc method.
