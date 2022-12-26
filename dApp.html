@@ -4,49 +4,18 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://fabianbormann.github.io/meerkat/meerkat.min.js"></script>
-    <script>
-        const meerkat = new Meerkat({ 
-            seed: 'BofdLENCoCxJroaUcjbj9gyhiozjR6o6ZnxgMD6TgtvpS6DbGsWi',
-            announce: [
-                'wss://tracker.files.fm:7073/announce',
-                'wss://tracker.btorrent.xyz',
-                'ws://tracker.files.fm:7072/announce',
-                'wss://tracker.openwebtorrent.com:443/announce',
-            ],
-            loggingEnabled: true
-         });
-
-        const logger = meerkat.logger;
-        logger.info(`The generated meerkat address is: ${meerkat.address()}`)
-
-        var connected = false;
-        meerkat.on("connections", function (clients) {
-            if (clients == 0 && connected == false) {
-                connected = true;
-                logger.info("server ready");
-            }
-            logger.info(`${clients} clients connected`);
-        });
-
-        meerkat.register("api", function (address, args, callback) {
-            const api = { version: args.api.version, address: address }
-
-            for (method of args.api.methods) {
-                api[method] = () => new Promise((resolve, reject) => {
-                    meerkat.rpc(address, method, {}, (result) => resolve(result));
-                });
-            }
-
-            window.cardano = window.cardano || {};
-            window.cardano[args.api.name] = api;
-            logger.info(`injected api of ${args.api.name} into window.cardano`);
-        });
-    </script>
-    <title>DApp</title>
+    <script src="https://fabianbormann.github.io/cardano-peer-connect/bundle.min.js"></script>
+    <title>Example dApp</title>
 </head>
 <body>
-    <h1>Simple Example Dapp</h1>
-    <p>Please open the console to see Meerkat in action.</p>
+    <h1>Example dApp</h1>
+    <p>Please scan the QR code or share the address below with your wallet app.</p>
+    <div id="qr-code"></div>
+    <p id="address"></p>
+    <script>
+      const dAppConnect = new CardanoPeerConnect.DAppPeerConnect();
+      dAppConnect.generateQRCode(document.getElementById('qr-code'));
+      document.getElementById('address').innerText = dAppConnect.getAddress();
+    </script>
 </body>
 </html>
