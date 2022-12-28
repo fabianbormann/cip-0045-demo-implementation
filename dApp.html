@@ -11,11 +11,21 @@
     <h1>Example dApp</h1>
     <p>Please scan the QR code or share the address below with your wallet app.</p>
     <div id="qr-code"></div>
-    <p id="address"></p>
+    <p id="address"></p><button id="button" onclick="copyAddress()">Copy</button>
     <script>
       const dAppConnect = new CardanoPeerConnect.DAppPeerConnect();
       dAppConnect.generateQRCode(document.getElementById('qr-code'));
       document.getElementById('address').innerText = dAppConnect.getAddress();
+
+      function copyAddress(clickElement) {
+        const text = document.getElementById('address').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          document.getElementById("button").innerText = "Successfully copied!";
+          setTimeout(() => {
+            document.getElementById("button").innerText = "Copy";
+          }, 500);
+        });
+      }
     </script>
 </body>
 </html>

@@ -1,18 +1,16 @@
 import {
   IonButton,
-  IonButtons,
   IonContent,
   IonHeader,
   IonInput,
   IonItem,
-  IonLabel,
   IonPage,
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
 import './Home.css';
 import { BoostPeerConnect } from '../BoostPeerConnect';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 const Home: React.FC = () => {
   const boostPeerConnect = useRef<BoostPeerConnect>(new BoostPeerConnect());
