@@ -2,6 +2,8 @@
 
 This is a demo implementation of [CIP-????](https://github.com/cardano-foundation/CIPs/pull/395) that uses [cardano-peer-connect](https://github.com/fabianbormann/cardano-peer-connect).
 
+<img src="https://user-images.githubusercontent.com/1525818/209772566-54ac650b-efb2-4f84-8f7b-eaeedb6f5f90.gif" width="600" />
+
 ## Getting Started
 
 ### Run the Server (aka the dApp)
