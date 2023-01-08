@@ -37,7 +37,7 @@ The DAppPeerConnect instance is now waiting for clients to connect. It provides 
 ### Run the Client
 
 ```zsh
-cd ionic-app
+cd demo-wallet-app
 npm i
 npm start
 ```
@@ -67,14 +67,14 @@ The wallet app is actually the result of:
 1. The blank ionic react template with cardano-peer-connect as an additional npm package
 
 ```zsh
-ionic start ionic-app blank --type react
-cd ionic-app
+ionic start demo-wallet-app blank --type react
+cd demo-wallet-app
 npm i @fabianbormann/cardano-peer-connect
 ```
 
-2. An Implementation of the abstract class `CardanoPeerConnect` within [BoostPeerConnect.tsx](./ionic-app/src/BoostPeerConnect.tsx) (feel free to adjust the name to e.g. `[MyWalletName]PeerConnect`)
+2. An Implementation of the abstract class `CardanoPeerConnect` within [BoostPeerConnect.tsx](./demo-wallet-app/src/BoostPeerConnect.tsx) (feel free to adjust the name to e.g. `[MyWalletName]PeerConnect`)
 
-3. BoostPeerConnect is now ready to use. Please see the example usage in [Home.tsx](./ionic-app/src/pages/Home.tsx)
+3. BoostPeerConnect is now ready to use. Please see the example usage in [Home.tsx](./demo-wallet-app/src/pages/Home.tsx)
 
 ```ts
 import { BoostPeerConnect } from '../BoostPeerConnect';
