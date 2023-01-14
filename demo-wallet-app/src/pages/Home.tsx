@@ -25,9 +25,10 @@ const Home: React.FC = () => {
       qrScanner.current = new QrScanner(
         videoElement.current,
         (result) => {
-          console.log('decoded qr code:', result);
           if (qrScanner.current) {
+            setDAppIdentifier(result.data.split(':')[0]);
             qrScanner.current.stop();
+            setQrOverlayVisible(false);
           }
         },
         {
@@ -90,13 +91,15 @@ const Home: React.FC = () => {
             <p>
               Paste the dapp identifier into this input field and click the
               connect button, or{' '}
-              <a
-                style={{ cursor: 'pointer' }}
-                role="button"
+              <span
+                style={{
+                  cursor: 'pointer',
+                  color: 'var(--ion-color-primary, #3880ff)',
+                }}
                 onClick={startQrScanner}
               >
                 scan the QR code.
-              </a>
+              </span>
             </p>
             <video
               style={{
@@ -109,6 +112,7 @@ const Home: React.FC = () => {
             {!qrOverlayVisible && (
               <IonItem className="address-container">
                 <IonInput
+                  value={dAppIdentifier}
                   onIonChange={(event) =>
                     setDAppIdentifier(`${event.target.value}`)
                   }
