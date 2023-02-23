@@ -7,15 +7,17 @@ import {
 
 const App = () => {
   const copyButton = useRef<HTMLDivElement | null>(null);
+  const txSubmitInput = useRef<HTMLInputElement | null>(null);
+  const txSignInput = useRef<HTMLInputElement | null>(null);
   const qrCodeField = useRef<HTMLDivElement | null>(null);
   const dAppConnect = useRef<DAppPeerConnect | null>(null);
   const [meerkatAddress, setMeerkatAddress] = useState('');
   const [supportedWallets, setSupportedWallets] = useState([
-    'nami',
-    'flint',
     'eternl',
   ]);
-
+  const sendButton = useRef<HTMLDivElement | null>(null);
+  const signButton = useRef<HTMLDivElement | null>(null);
+  
   const cardano = useCardano();
 
   useEffect(() => {
@@ -67,7 +69,7 @@ const App = () => {
           padding: '0 16px 0 16px',
         }}
       >
-        <h3>Example dApp</h3>
+        <h3>Example dApp connecting to Eternl</h3>
         <div style={{ flexGrow: 1 }} />
         <ConnectWalletButton
           supportedWallets={supportedWallets}
@@ -126,6 +128,107 @@ const App = () => {
           >
             Copy
           </div>
+    
+            <input
+                ref={txSubmitInput}
+                placeholder='signed tx cbor'
+                style={{
+                    width: '100%',
+                }} type="text"/>
+            
+            <div
+                ref={sendButton}
+                style={{
+                    padding: 10,
+                    marginTop: 12,
+                    backgroundColor: '#39393A',
+                    color: 'white',
+                    cursor: 'pointer',
+                }}
+                onClick={async () => {
+                    console.log('input', txSubmitInput.current?.value)
+            
+                    // @ts-ignore
+                    if(window.cardano !== undefined) {
+                
+                        // @ts-ignore
+                        const api = window.cardano!.eternl!
+                
+                        if(api) {
+                    
+                            console.log('api is', api)
+                    
+                            const func = await api.enable()
+                    
+                            console.log('funcs are', func)
+                    
+                            console.log('submit', txSubmitInput.current?.value)
+                    
+                            func.submitTx([txSubmitInput.current?.value])
+                    
+                        } else {
+                    
+                            console.log('No Eternl api is given')
+                        }
+                    } else {
+                        console.log('No cardano api found.')
+                    }
+                }}
+            >
+                Submit signed TX
+            </div>
+    
+            <hr />
+            
+          <input
+              ref={txSignInput}
+              placeholder='unsigend tx cbor'
+              style={{
+              width: '100%',
+          }} type="text"/>
+            
+            <span>Partial sign is false!</span>
+            <div
+                ref={signButton}
+                style={{
+                    padding: 10,
+                    marginTop: 12,
+                    backgroundColor: '#39393A',
+                    color: 'white',
+                    cursor: 'pointer',
+                }}
+                onClick={async () => {
+                    console.log('input', txSignInput.current?.value)
+                    
+                    // @ts-ignore
+                    if(window.cardano !== undefined) {
+                        
+                        // @ts-ignore
+                        const api = window.cardano!.eternl!
+                        
+                        if(api) {
+    
+                            console.log('api is', api)
+    
+                            const func = await api.enable()
+    
+                            console.log('funcs are', func)
+    
+                            console.log('sign tx', txSignInput.current?.value)
+    
+                            func.signTx([txSignInput.current?.value, false])
+                            
+                        } else {
+                            
+                            console.log('No Eternl API is given')
+                        }
+                    } else {
+                        console.log('No cardano api found.')
+                    }
+                }}
+            >
+                Sign TX
+            </div>
         </div>
       </div>
     </div>
