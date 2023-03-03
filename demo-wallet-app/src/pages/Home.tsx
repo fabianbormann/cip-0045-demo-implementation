@@ -9,12 +9,12 @@ import {
   IonToolbar,
 } from '@ionic/react';
 import './Home.css';
-import { BoostPeerConnect } from '../BoostPeerConnect';
+import { DemoWalletConnect } from '../DemoWalletConnect';
 import { useEffect, useRef, useState } from 'react';
 import QrScanner from 'qr-scanner';
 
 const Home: React.FC = () => {
-  const boostPeerConnect = useRef<BoostPeerConnect>(new BoostPeerConnect());
+  const boostPeerConnect = useRef<DemoWalletConnect>(new DemoWalletConnect());
   const [dAppIdentifier, setDAppIdentifier] = useState('');
   const videoElement = useRef<HTMLVideoElement | null>(null);
   const qrScanner = useRef<QrScanner | undefined>();
