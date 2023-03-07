@@ -12,13 +12,18 @@ import {
 } from '@cardano-foundation/cardano-connect-with-wallet';
 
 const App = () => {
+
   const copyButton = useRef<HTMLDivElement | null>(null);
-  const disconnectButton = useRef<HTMLDivElement | null>(null);
+  const shutdownButton = useRef<HTMLDivElement | null>(null);
   const txSubmitInput = useRef<HTMLInputElement | null>(null);
   const txSignInput = useRef<HTMLInputElement | null>(null);
   const qrCodeField = useRef<HTMLDivElement | null>(null);
   const dAppConnect = useRef<DAppPeerConnect | null>(null);
   const [meerkatAddress, setMeerkatAddress] = useState('');
+  const clientConnected = useRef<boolean>(false)
+  const clientAddress = useRef<string | null>(null)
+  const connectedWallet = useRef<IWalletInfo | null>(null)
+  const apiInjected = useRef<boolean>(false)
   const [supportedWallets, setSupportedWallets] = useState([
     'eternl',
   ]);
@@ -29,17 +34,12 @@ const App = () => {
 
   useEffect(() => {
 
-
     window.addEventListener('beforeunload',  (event:any) => {
-      event.preventDefault()
-      event.returnValue = ''
 
       if(dAppConnect.current) {
-        //ToDo: Disconnect
+
+        dAppConnect.current?.shutdownServer()
       }
-
-      console.log('SERVER: window will be unload')
-
     })
 
     if (dAppConnect.current === null) {
@@ -50,23 +50,24 @@ const App = () => {
         callback(
           window.confirm(`Do you want to connect to wallet ${walletInfo.name} (${walletInfo.address})?`)
         );
+        connectedWallet.current = walletInfo
       };
 
       const onApiInject = (name: string, address: string) => {
-        console.log('SERVER: onApiInject', name, address)
 
         setSupportedWallets([...supportedWallets, name]);
         cardano.connect(name);
+
+        apiInjected.current = true
       };
 
       const onApiEject = (name: string, address: string) => {
-
-        console.log('SERVER: onApiEject', name, address)
 
         cardano.disconnect();
         setSupportedWallets(
           supportedWallets.filter((supportedWallet) => supportedWallet !== name)
         );
+        apiInjected.current = false
       };
 
       const dAppInfo: IDAppInfos = {
@@ -79,8 +80,13 @@ const App = () => {
         verifyConnection: verifyConnection,
         onApiInject: onApiInject,
         onApiEject: onApiEject,
-        onDisconnect: (address: string) => {
-          console.log('SERVER: disconnect', address)
+        onConnect: (address: string) => {
+          clientConnected.current = true
+          clientAddress.current = address
+        },
+        onDisconnect: () => {
+          clientConnected.current = false
+          clientAddress.current = null
         }
       });
 
@@ -90,10 +96,7 @@ const App = () => {
         dAppConnect.current.generateQRCode(qrCodeField.current);
       }
     }
-
-
   }, []);
-
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -133,68 +136,89 @@ const App = () => {
           style={{ marginTop: 16, marginBottom: 16 }}
           ref={qrCodeField}
         ></div>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            marginTop: 16,
-          }}
-        >
-          <div>{meerkatAddress}</div>
-          <div
-            ref={copyButton}
-            style={{
-              padding: 10,
-              marginTop: 12,
-              backgroundColor: '#39393A',
-              color: 'white',
-              cursor: 'pointer',
-            }}
-            onClick={() => {
-              navigator.clipboard.writeText(meerkatAddress).then(() => {
-                if (copyButton.current) {
-                  copyButton.current.innerText = 'Successfully copied!';
-                  setTimeout(() => {
+
+        <span>For method results check the console.</span>
+
+        <div style={{display: 'flex',flexDirection: 'column',alignItems: 'center',marginTop: 16, width: "70%"}}>
+
+          <div style={{display: 'flex',flexDirection: 'column',alignItems: 'center', backgroundColor: "lightblue", width:"100%", clear: "both"}}>
+
+            <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 16,}}>
+
+              <div>
+                <span style={{ paddingLeft: "4px", textDecoration: 'underline' }}>{meerkatAddress}</span>
+              </div>
+
+              <div
+                ref={copyButton}
+                style={{
+                  textAlign: "right",
+                  padding: 10,
+                  marginTop: 12,
+                  backgroundColor: '#39393A',
+                  color: 'white',
+                  cursor: 'pointer',
+                }}
+                onClick={() => {
+                  navigator.clipboard.writeText(meerkatAddress).then(() => {
                     if (copyButton.current) {
-                      copyButton.current.innerText = 'Copy';
+                      copyButton.current.innerText = 'Successfully copied!';
+                      setTimeout(() => {
+                        if (copyButton.current) {
+                          copyButton.current.innerText = 'Copy';
+                        }
+                      }, 500);
                     }
-                  }, 500);
-                }
-              });
-            }}
-          >
-            Copy
+                  });
+                }}>
+                Copy
+              </div>
+            </div>
+
+            <div style={{display: 'flex', flexDirection: 'row'}}>
+
+              <div ref={ shutdownButton }
+                   style={{padding: 10, marginTop: 12, backgroundColor: '#39393A', color: 'white', cursor: 'pointer'}}
+                   onClick={() => {
+
+                     if(dAppConnect.current) {
+
+                       clientAddress.current = null
+                       clientConnected.current = false
+
+                       dAppConnect.current?.shutdownServer()
+                     }
+                   }}>
+                Shutdown Server
+              </div>
+
+            </div>
+
+            <div style={{display: 'flex',flexDirection: 'column',alignItems: 'center',marginTop: 16, width: "70%"}}>
+              Connected: { clientConnected.current ? "yes " + `( ${clientAddress.current} )`: "no" }
+            </div>
+
+            { connectedWallet.current &&
+              <div style={{display: 'flex',flexDirection: 'column',alignItems: 'center',marginTop: 16, width: "70%"}}>
+                Wallet name: { `${connectedWallet.current?.name} (version: ${connectedWallet.current?.version} )` }
+              </div>
+            }
+
+            <div style={{display: 'flex',flexDirection: 'column',alignItems: 'center',marginTop: 16, width: "70%"}}>
+              API injected: { apiInjected.current ? "yes ": "no" }
+            </div>
+
+
           </div>
 
-          <div
-            ref={disconnectButton}
-            style={{
-              padding: 10,
-              marginTop: 12,
-              backgroundColor: '#39393A',
-              color: 'white',
-              cursor: 'pointer',
-            }}
-            onClick={() => {
-              console.log('click disconnect')
-              if(dAppConnect.current) {
-
-                console.log('ToDo: Call disconnect', dAppConnect)
-
-              } else {
-                console.log('dapp undefined')
-              }
-            }}
-          >
-            Disconnect
-          </div>
 
 
 
+          <div style={{display: 'flex',flexDirection: 'row',alignItems: 'center',marginTop: 16, width: "100%"}}>
           <input
                 ref={txSubmitInput}
                 placeholder='signed tx cbor'
+                width='100%'
                 style={{
                     width: '100%',
                 }} type="text"/>
@@ -207,34 +231,26 @@ const App = () => {
                     backgroundColor: '#39393A',
                     color: 'white',
                     cursor: 'pointer',
+                  width: '220px'
                 }}
                 onClick={async () => {
-                    console.log('input', txSubmitInput.current?.value)
 
                     // @ts-ignore
-                    if(window.cardano !== undefined) {
+                    if(window.cardanop2p !== undefined) {
 
                         // @ts-ignore
-                        const api = window.cardano!.eternl!
+                        const api = window.cardanop2p!.eternl!
 
                         if(api) {
 
-                            console.log('api is', api)
-
-                            const func = await api.enable()
-
-                            console.log('funcs are', func)
-
-                            console.log('submit', txSubmitInput.current?.value)
-
-                            func.submitTx(txSubmitInput.current?.value)
+                          (await api.enable()).submitTx(txSubmitInput.current?.value)
 
                         } else {
 
                             console.log('No Eternl api is given')
                         }
                     } else {
-                        console.log('No cardano api found.')
+                        console.log('No cardano p2p api found.')
                     }
                 }}
             >
@@ -243,31 +259,34 @@ const App = () => {
 
             <hr />
 
+          </div>
+
+          <div style={{display: 'flex',flexDirection: 'row',alignItems: 'center',marginTop: 16, width: "100%"}}>
+
           <input
               ref={txSignInput}
               placeholder='unsigend tx cbor'
               style={{
               width: '100%',
           }} type="text"/>
-
-            <span>Partial sign is false!</span>
             <div
                 ref={signButton}
                 style={{
-                    padding: 10,
-                    marginTop: 12,
-                    backgroundColor: '#39393A',
-                    color: 'white',
-                    cursor: 'pointer',
+                  padding: 10,
+                  marginTop: 12,
+                  backgroundColor: '#39393A',
+                  color: 'white',
+                  cursor: 'pointer',
+                  width: '220px'
                 }}
                 onClick={async () => {
                     console.log('input', txSignInput.current?.value)
 
                     // @ts-ignore
-                    if(window.cardano !== undefined) {
+                    if(window.cardanop2p2 !== undefined) {
 
                         // @ts-ignore
-                        const api = window.cardano!.eternl!
+                        const api = window.cardanop2p!.eternl!
 
                         if(api) {
 
@@ -294,6 +313,7 @@ const App = () => {
             >
                 Sign TX
             </div>
+          </div>
         </div>
       </div>
     </div>
