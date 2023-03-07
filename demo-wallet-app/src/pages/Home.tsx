@@ -12,9 +12,29 @@ import './Home.css';
 import { DemoWalletConnect } from '../DemoWalletConnect';
 import { useEffect, useRef, useState } from 'react';
 import QrScanner from 'qr-scanner';
+import { IConnectMessage } from '@fabianbormann/cardano-peer-connect/types';
 
 const Home: React.FC = () => {
-  const boostPeerConnect = useRef<DemoWalletConnect>(new DemoWalletConnect());
+
+  const boostPeerConnect = useRef<DemoWalletConnect>(new DemoWalletConnect({
+    address: "http://localhost:3002/home",
+    name: "Demo Wallet",
+    icon: "",
+    version: "0.0.1"
+  }));
+
+  boostPeerConnect.current.setOnConnect((connectMessage: IConnectMessage) => {
+
+    console.log('connect', connectMessage)
+
+  })
+
+  boostPeerConnect.current.setOnDisconnect((connectMessage: IConnectMessage) => {
+
+    console.log('disconnect', connectMessage)
+
+  })
+
   const [dAppIdentifier, setDAppIdentifier] = useState('');
   const videoElement = useRef<HTMLVideoElement | null>(null);
   const qrScanner = useRef<QrScanner | undefined>();
