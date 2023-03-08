@@ -26,13 +26,21 @@ const Home: React.FC = () => {
   boostPeerConnect.current.setOnConnect((connectMessage: IConnectMessage) => {
 
     console.log('connect', connectMessage)
-
   })
 
   boostPeerConnect.current.setOnDisconnect((connectMessage: IConnectMessage) => {
 
     console.log('disconnect', connectMessage)
+  })
 
+  boostPeerConnect.current.setOnServerShutdown((connectMessage: IConnectMessage) => {
+
+    console.log('server shutdown', connectMessage)
+  })
+
+  boostPeerConnect.current.setOnApiInject((connectMessage: IConnectMessage) => {
+
+    console.log('on api inject message', connectMessage)
   })
 
   const [dAppIdentifier, setDAppIdentifier] = useState('');
