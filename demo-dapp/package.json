@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@cardano-foundation/cardano-connect-with-wallet": "^0.1.46",
-    "@fabianbormann/cardano-peer-connect": "git+https://github.com/marcuspuchalla/cardano-peer-connect.git#integration/lifecyle-namespace-features",
+    "@fabianbormann/cardano-peer-connect": "^1.2.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
