@@ -198,7 +198,7 @@ const App = () => {
               Connected: { clientConnected.current ? "yes " + `( ${clientAddress.current} )`: "no" }
             </div>
 
-            { connectedWallet.current &&
+            { clientConnected.current && connectedWallet.current &&
               <div style={{display: 'flex',flexDirection: 'column',alignItems: 'center',marginTop: 16, width: "70%"}}>
                 Wallet name: { `${connectedWallet.current?.name} (version: ${connectedWallet.current?.version} )` }
               </div>
