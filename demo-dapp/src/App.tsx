@@ -22,10 +22,14 @@ const App = () => {
   const [meerkatAddress, setMeerkatAddress] = useState('');
   const clientConnected = useRef<boolean>(false)
   const clientAddress = useRef<string | null>(null)
+  const identicon = useRef<string | null>(null)
   const connectedWallet = useRef<IWalletInfo | null>(null)
   const apiInjected = useRef<boolean>(false)
   const [supportedWallets, setSupportedWallets] = useState([
+    'nami',
+    'flint',
     'eternl',
+    'eternl-p2p',
   ]);
   const sendButton = useRef<HTMLDivElement | null>(null);
   const signButton = useRef<HTMLDivElement | null>(null);
@@ -83,10 +87,15 @@ const App = () => {
         onConnect: (address: string) => {
           clientConnected.current = true
           clientAddress.current = address
+
+          identicon.current = dAppConnect.current?.getIdenticon() ?? null
+
         },
         onDisconnect: () => {
           clientConnected.current = false
           clientAddress.current = null
+
+          identicon.current = null
         }
       });
 
@@ -208,11 +217,13 @@ const App = () => {
               API injected: { apiInjected.current ? "yes ": "no" }
             </div>
 
+            { identicon.current &&
+              <div style={{display: 'flex',flexDirection: 'column',alignItems: 'center',marginTop: 16, width: "70%"}}>
+                  <img src={identicon.current} />
+              </div>
+            }
 
           </div>
-
-
-
 
           <div style={{display: 'flex',flexDirection: 'row',alignItems: 'center',marginTop: 16, width: "100%"}}>
           <input

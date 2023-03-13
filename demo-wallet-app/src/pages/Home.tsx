@@ -14,7 +14,7 @@ import { useEffect, useRef, useState } from 'react';
 import QrScanner from 'qr-scanner';
 import { IConnectMessage } from '@fabianbormann/cardano-peer-connect/types';
 
-const Home: React.FC = () => {
+const Home = () => {
 
   const boostPeerConnect = useRef<DemoWalletConnect>(new DemoWalletConnect({
     address: "http://localhost:3002/home",
@@ -23,19 +23,37 @@ const Home: React.FC = () => {
     version: "0.0.1"
   }));
 
+    window.addEventListener('beforeunload', (event: any) => {
+
+      if (boostPeerConnect.current) {
+
+        boostPeerConnect.current?.disconnect(dAppIdentifier)
+      }
+    })
+
   boostPeerConnect.current.setOnConnect((connectMessage: IConnectMessage) => {
 
     console.log('connect', connectMessage)
+
+    identicon.current = boostPeerConnect.current.getIdenticon()
+
+    setConnected('Connected to ' + connectMessage.dApp.name + " (" +connectMessage.dApp.address + " at: " + connectMessage.dApp.url + ")")
   })
 
   boostPeerConnect.current.setOnDisconnect((connectMessage: IConnectMessage) => {
 
     console.log('disconnect', connectMessage)
+
+    identicon.current = null
+    setConnected('Disconnected')
   })
 
   boostPeerConnect.current.setOnServerShutdown((connectMessage: IConnectMessage) => {
 
     console.log('server shutdown', connectMessage)
+
+    identicon.current = null
+    setConnected('Disconnected')
   })
 
   boostPeerConnect.current.setOnApiInject((connectMessage: IConnectMessage) => {
@@ -43,10 +61,13 @@ const Home: React.FC = () => {
     console.log('on api inject message', connectMessage)
   })
 
+
   const [dAppIdentifier, setDAppIdentifier] = useState('');
   const videoElement = useRef<HTMLVideoElement | null>(null);
   const qrScanner = useRef<QrScanner | undefined>();
   const [qrOverlayVisible, setQrOverlayVisible] = useState(false);
+  const identicon = useRef<string | null>(null);
+  const [connected, setConnected] = useState('Disconnected');
 
   useEffect(() => {
     if (videoElement.current) {
@@ -65,7 +86,6 @@ const Home: React.FC = () => {
       );
     }
   }, []);
-
   const connectWithDApp = () => {
     const seed = boostPeerConnect.current.connect(
       dAppIdentifier,
@@ -165,6 +185,19 @@ const Home: React.FC = () => {
                 </IonButton>
               )}
             </div>
+
+            <div>
+              { connected }
+            </div>
+
+            { identicon.current &&
+                <div>
+
+                  <img src={ identicon.current } alt={ 'identicon' }/>
+
+                </div>
+            }
+
           </div>
         </div>
       </IonContent>
