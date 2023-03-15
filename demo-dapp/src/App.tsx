@@ -49,11 +49,25 @@ const App = () => {
     if (dAppConnect.current === null) {
       const verifyConnection = (
         walletInfo: IWalletInfo,
-        callback: (granted: boolean) => void
+        callback: (granted: boolean, autoconnect: boolean) => void
       ) => {
-        callback(
-          window.confirm(`Do you want to connect to wallet ${walletInfo.name} (${walletInfo.address})?`)
-        );
+        if(walletInfo.requestAutoconnect) {
+
+          const accessAndAutoConnect = window.confirm(`Do you want to automatically connect to wallet ${walletInfo.name} (${walletInfo.address})?`)
+
+          callback(
+            accessAndAutoConnect,
+            accessAndAutoConnect,
+          );
+
+          // callback(true, true)//ToDo: do not assume but save decision in local db
+
+        } else {
+          callback(
+            window.confirm(`Do you want to connect to wallet ${walletInfo.name} (${walletInfo.address})?`),
+            true
+          );
+        }
         connectedWallet.current = walletInfo
       };
 
@@ -81,7 +95,6 @@ const App = () => {
 
       dAppConnect.current = new DAppPeerConnect({
         dAppInfo: dAppInfo,
-        verifyConnection: verifyConnection,
         onApiInject: onApiInject,
         onApiEject: onApiEject,
         onConnect: (address: string) => {
@@ -96,7 +109,8 @@ const App = () => {
           clientAddress.current = null
 
           identicon.current = null
-        }
+        },
+        verifyConnection: verifyConnection
       });
 
       setMeerkatAddress(dAppConnect.current.getAddress());
@@ -119,7 +133,7 @@ const App = () => {
           padding: '0 16px 0 16px',
         }}
       >
-        <h3>Example dApp connecting to Eternl</h3>
+        <h3>Example dApp connecting</h3>
         <div style={{ flexGrow: 1 }} />
         <ConnectWalletButton
           supportedWallets={supportedWallets}
@@ -247,10 +261,10 @@ const App = () => {
                 onClick={async () => {
 
                     // @ts-ignore
-                    if(window.cardanop2p !== undefined) {
+                    if(window.cardano !== undefined) {
 
                         // @ts-ignore
-                        const api = window.cardanop2p!.eternl!
+                        const api = window.cardano[connectedWallet.current?.name]
 
                         if(api) {
 
@@ -258,10 +272,10 @@ const App = () => {
 
                         } else {
 
-                            console.log('No Eternl api is given')
+                            console.log('No wallet api is given')
                         }
                     } else {
-                        console.log('No cardano p2p api found.')
+                        console.log('No wallet p2p api found.')
                     }
                 }}
             >
@@ -294,10 +308,10 @@ const App = () => {
                     console.log('input', txSignInput.current?.value)
 
                     // @ts-ignore
-                    if(window.cardanop2p2 !== undefined) {
+                    if(window.cardano !== undefined) {
 
                         // @ts-ignore
-                        const api = window.cardanop2p!.eternl!
+                        const api = window.cardano[connectedWallet.current?.name]
 
                         if(api) {
 
@@ -315,10 +329,10 @@ const App = () => {
 
                         } else {
 
-                            console.log('No Eternl API is given')
+                            console.log('No wallet API is given')
                         }
                     } else {
-                        console.log('No cardano api found.')
+                        console.log('No wallet api found.')
                     }
                 }}
             >
