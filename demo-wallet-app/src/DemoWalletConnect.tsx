@@ -24,9 +24,9 @@ export class DemoWalletConnect extends CardanoPeerConnect {
       resolve(arg);
     });
   }
-  constructor(walletInfo: IWalletInfo) {
+  constructor(walletInfo: IWalletInfo, seed: string | null) {
 
-    super(walletInfo);
+    super(walletInfo, seed);
 
     //these functions and properties will be available under window.cardano['walletname'].experimental
     this.setExperimentalApi(new ExperimentalContainer({
