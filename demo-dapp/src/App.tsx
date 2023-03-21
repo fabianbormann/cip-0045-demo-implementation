@@ -120,6 +120,7 @@ const App = () => {
         verifyConnection: verifyConnection,
         useWalletDiscovery: true
       });
+      dAppConnect.current?.setLogLevel('info')
 
       setMeerkatAddress(dAppConnect.current.getAddress());
 

@@ -26,7 +26,12 @@ export class DemoWalletConnect extends CardanoPeerConnect {
   }
   constructor(walletInfo: IWalletInfo, seed: string | null, announce: string[], discoverySeed?: string | null) {
 
-    super(walletInfo, seed, announce, discoverySeed);
+    super(walletInfo, {
+      seed: seed,
+      announce: announce,
+      discoverySeed: discoverySeed,
+      logLevel: "info"
+    });
 
     //these functions and properties will be available under window.cardano['walletname'].experimental
     this.setExperimentalApi(new ExperimentalContainer({
@@ -69,6 +74,13 @@ export class DemoWalletConnect extends CardanoPeerConnect {
         });
       }
     }))
+  }
+
+  public clearSeen = () => {
+
+    if(this.meerkat) {
+      this.meerkat.seen = {}
+    }
   }
 
   getRewardAddresses(): Promise<Cbor[]> {
