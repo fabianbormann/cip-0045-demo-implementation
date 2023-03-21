@@ -95,6 +95,13 @@ const App = () => {
 
       dAppConnect.current = new DAppPeerConnect({
         dAppInfo: dAppInfo,
+        announce: [
+          'https://pro.passwordchaos.gimbalabs.io',
+          'wss://tracker.files.fm:7073/announce',
+          'wss://tracker.btorrent.xyz',
+          'ws://tracker.files.fm:7072/announce',
+          'wss://tracker.openwebtorrent.com:443/announce',
+        ],
         onApiInject: onApiInject,
         onApiEject: onApiEject,
         onConnect: (address: string) => {
@@ -110,7 +117,8 @@ const App = () => {
 
           identicon.current = null
         },
-        verifyConnection: verifyConnection
+        verifyConnection: verifyConnection,
+        useWalletDiscovery: true
       });
 
       setMeerkatAddress(dAppConnect.current.getAddress());
