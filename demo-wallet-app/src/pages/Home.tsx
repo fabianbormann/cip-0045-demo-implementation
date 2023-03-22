@@ -10,45 +10,60 @@ import {
 } from '@ionic/react';
 import './Home.css';
 import { DemoWalletConnect } from '../DemoWalletConnect';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import QrScanner from 'qr-scanner';
 import { IConnectMessage } from '@fabianbormann/cardano-peer-connect/types';
 import { icon } from '../common';
 
 const Home = () => {
-  const boostPeerConnect = useRef<DemoWalletConnect>(
-    new DemoWalletConnect({
-      name: 'DemoWallet',
-      version: '1.0.1',
-      address: 'http://localhost:3002/home',
-      icon: icon,
-      requestAutoconnect: true,
-    })
+
+  const [meerkatAddress, setMeerkatAddress] = useState('');
+
+  let walletInfo = {
+    address: "http://localhost:3002/home",
+    name: "demo_wallet",
+    icon: icon,
+    version: "0.0.1",
+    requestAutoconnect: true
+  };
+
+  let announce = [
+    'https://pro.passwordchaos.gimbalabs.io',
+    'wss://tracker.files.fm:7073/announce',
+    'wss://tracker.btorrent.xyz',
+    'ws://tracker.files.fm:7072/announce',
+    'wss://tracker.openwebtorrent.com:443/announce',
+  ];
+
+  const [boostPeerConnect, setBoostPeerConnect] = React.useState(
+    () => new DemoWalletConnect(walletInfo, localStorage.getItem('meerkat-boostwallet-seed'), announce)
   );
 
   window.addEventListener('beforeunload', (event: any) => {
-    if (boostPeerConnect.current) {
-      boostPeerConnect.current?.disconnect(dAppIdentifier);
-    }
-  });
 
-  boostPeerConnect.current.setOnConnect((connectMessage: IConnectMessage) => {
+    if (boostPeerConnect) {
+
+      boostPeerConnect?.disconnect(dAppIdentifier)
+    }
+  })
+
+  boostPeerConnect.setOnConnect((connectMessage: IConnectMessage) => {
     console.log('connect', connectMessage);
 
-    identicon.current = boostPeerConnect.current.getIdenticon();
+    identicon.current = boostPeerConnect.getIdenticon();
 
     setConnected(
       'Connected to ' +
-        connectMessage.dApp.name +
-        ' (' +
-        connectMessage.dApp.address +
-        ' at: ' +
-        connectMessage.dApp.url +
-        ')'
+      connectMessage.dApp.name +
+      ' (' +
+      connectMessage.dApp.address +
+      ' at: ' +
+      connectMessage.dApp.url +
+      ')'
     );
   });
 
-  boostPeerConnect.current.setOnDisconnect(
+  boostPeerConnect.setOnDisconnect(
     (connectMessage: IConnectMessage) => {
       console.log('disconnect', connectMessage);
 
@@ -57,7 +72,7 @@ const Home = () => {
     }
   );
 
-  boostPeerConnect.current.setOnServerShutdown(
+  boostPeerConnect.setOnServerShutdown(
     (connectMessage: IConnectMessage) => {
       console.log('server shutdown', connectMessage);
 
@@ -66,7 +81,7 @@ const Home = () => {
     }
   );
 
-  boostPeerConnect.current.setOnApiInject((connectMessage: IConnectMessage) => {
+  boostPeerConnect.setOnApiInject((connectMessage: IConnectMessage) => {
     console.log('on api inject message', connectMessage);
   });
 
@@ -95,18 +110,23 @@ const Home = () => {
     }
   }, []);
   const connectWithDApp = () => {
-    const seed = boostPeerConnect.current.connect(
-      dAppIdentifier,
-      [
-        'https://pro.passwordchaos.gimbalabs.io',
-        'wss://tracker.files.fm:7073/announce',
-        'wss://tracker.btorrent.xyz',
-        'ws://tracker.files.fm:7072/announce',
-        'wss://tracker.openwebtorrent.com:443/announce',
-      ],
-      localStorage.getItem('meerkat-boostwallet-seed')
-    );
-    localStorage.setItem('meerkat-boostwallet-seed', seed);
+
+    console.log('connect with dapp')
+
+    if(boostPeerConnect) {
+      const seed = boostPeerConnect.connect(dAppIdentifier);
+      localStorage.setItem('meerkat-boostwallet-seed', seed);
+    }
+
+    // setMeerkatAddress(boostPeerConnect.current.getAddress());
+  };
+
+  const disconnectDApp = () => {
+
+    if(boostPeerConnect) {
+
+      boostPeerConnect.disconnect(dAppIdentifier);
+    }
   };
 
   const startQrScanner = () => {
@@ -187,20 +207,32 @@ const Home = () => {
                 <IonButton onClick={stopQrScanner} fill="solid">
                   Stop Scanner
                 </IonButton>
-              ) : (
+              ) :  connected === 'Disconnected' ? (
                 <IonButton onClick={connectWithDApp} fill="solid">
                   Connect
                 </IonButton>
-              )}
+              ) : <IonButton onClick={disconnectDApp} fill="solid">
+                Disconnect
+              </IonButton>
+              }
             </div>
 
-            <div>{connected}</div>
+            <div>
+              <span style={{ paddingLeft: "4px", textDecoration: 'underline' }}>meerkatAddress: { meerkatAddress }</span>
+            </div>
 
-            {identicon.current && (
-              <div>
-                <img src={identicon.current} alt={'identicon'} />
-              </div>
-            )}
+            <div>
+              { connected }
+            </div>
+
+            { identicon.current &&
+                <div>
+
+                  <img src={ identicon.current } alt={ 'identicon' }/>
+
+                </div>
+            }
+
           </div>
         </div>
       </IonContent>

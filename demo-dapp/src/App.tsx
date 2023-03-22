@@ -12,6 +12,7 @@ import {
 } from '@cardano-foundation/cardano-connect-with-wallet';
 
 const App = () => {
+
   const copyButton = useRef<HTMLDivElement | null>(null);
   const shutdownButton = useRef<HTMLDivElement | null>(null);
   const txSubmitInput = useRef<HTMLInputElement | null>(null);
@@ -32,6 +33,7 @@ const App = () => {
   ]);
   const sendButton = useRef<HTMLDivElement | null>(null);
   const signButton = useRef<HTMLDivElement | null>(null);
+  const [dAppIdentifier, setDAppIdentifier] = useState('');
 
   const cardano = useCardano();
 
@@ -88,6 +90,13 @@ const App = () => {
 
       dAppConnect.current = new DAppPeerConnect({
         dAppInfo: dAppInfo,
+        announce: [
+          'https://pro.passwordchaos.gimbalabs.io',
+          'wss://tracker.files.fm:7073/announce',
+          'wss://tracker.btorrent.xyz',
+          'ws://tracker.files.fm:7072/announce',
+          'wss://tracker.openwebtorrent.com:443/announce',
+        ],
         onApiInject: onApiInject,
         onApiEject: onApiEject,
         onConnect: (address: string) => {
@@ -103,6 +112,7 @@ const App = () => {
           identicon.current = null;
         },
         verifyConnection: verifyConnection,
+        useWalletDiscovery: true
       });
 
       setMeerkatAddress(dAppConnect.current.getAddress());

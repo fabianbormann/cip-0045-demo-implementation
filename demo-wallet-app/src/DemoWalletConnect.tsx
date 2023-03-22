@@ -18,9 +18,14 @@ export class DemoWalletConnect extends CardanoPeerConnect {
     console.log('asyncTest called with: ', arg);
     return arg;
   }
+  constructor(walletInfo: IWalletInfo, seed: string | null, announce: string[], discoverySeed?: string | null) {
 
-  constructor(walletInfo: IWalletInfo) {
-    super(walletInfo);
+    super(walletInfo, {
+      seed: seed,
+      announce: announce,
+      discoverySeed: discoverySeed,
+      logLevel: "info"
+    });
 
     //these functions and properties will be available under window.cardano['walletname'].experimental
     this.setExperimentalApi(
