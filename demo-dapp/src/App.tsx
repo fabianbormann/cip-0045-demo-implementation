@@ -4,7 +4,7 @@ import { DAppPeerConnect } from '@fabianbormann/cardano-peer-connect';
 import {
   IDAppInfos,
   IWalletInfo,
-} from '@fabianbormann/cardano-peer-connect/types';
+} from '@fabianbormann/cardano-peer-connect/src/types';
 
 import {
   ConnectWalletButton,
@@ -99,11 +99,16 @@ const App = () => {
         ],
         onApiInject: onApiInject,
         onApiEject: onApiEject,
-        onConnect: (address: string) => {
+        onConnect: (address: string, walletInfo?: IWalletInfo) => {
+
           clientConnected.current = true;
           clientAddress.current = address;
 
           identicon.current = dAppConnect.current?.getIdenticon() ?? null;
+
+          if (walletInfo) {
+            connectedWallet.current = walletInfo;
+          }
         },
         onDisconnect: () => {
           clientConnected.current = false;
