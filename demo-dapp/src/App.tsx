@@ -83,7 +83,7 @@ const App = () => {
         apiInjected.current = false;
       };
 
-      const dAppInfo: IDAppInfos = {
+      const dAppInfo: Omit<IDAppInfos, 'address'> = {
         name: 'Test Dapp 1',
         url: 'http://localhost:3001/',
       };
