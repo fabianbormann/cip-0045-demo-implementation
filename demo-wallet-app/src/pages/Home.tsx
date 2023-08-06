@@ -12,40 +12,52 @@ import './Home.css';
 import { DemoWalletConnect } from '../DemoWalletConnect';
 import React, { useEffect, useRef, useState } from 'react';
 import QrScanner from 'qr-scanner';
-import { IConnectMessage } from '@fabianbormann/cardano-peer-connect/types';
 import { icon } from '../common';
+import { IConnectMessage } from '@fabianbormann/cardano-peer-connect/dist/src/types';
 
 const Home = () => {
-
   const [meerkatAddress, setMeerkatAddress] = useState('');
 
   let walletInfo = {
-    address: "http://localhost:3002/home",
-    name: "demo_wallet",
+    address: 'http://localhost:3002/home',
+    name: 'demo_wallet',
     icon: icon,
-    version: "0.0.1",
-    requestAutoconnect: true
+    version: '0.0.1',
+    requestAutoconnect: true,
   };
 
-  let announce = [
-    'https://pro.passwordchaos.gimbalabs.io',
+  let announce: [
+    /*'https://dev.tracker.cf-identity-wallet.metadata.dev.cf-deployments.org',
+          'wss://tracker.files.fm:7073/announce',
+          'wss://tracker.btorrent.xyz',
+          'ws://tracker.files.fm:7072/announce',*/
     'wss://tracker.files.fm:7073/announce',
-    'wss://tracker.btorrent.xyz',
     'ws://tracker.files.fm:7072/announce',
     'wss://tracker.openwebtorrent.com:443/announce',
+    //'http://tracker.bittorrent.am/announce',
+    'udp://tracker.opentrackr.org:1337',
+    //'https://tracker2.ctix.cn:443/announce',
+    //'https://tracker1.520.jp:443/announce',
+    'udp://opentracker.i2p.rocks:6969',
+    'udp://open.demonii.com:1337',
+    'udp://tracker.openbittorrent.com:6969'
+    //'http://tracker.openbittorrent.com:80/announce'
   ];
 
   const [boostPeerConnect, setBoostPeerConnect] = React.useState(
-    () => new DemoWalletConnect(walletInfo, localStorage.getItem('meerkat-boostwallet-seed'), announce)
+    () =>
+      new DemoWalletConnect(
+        walletInfo,
+        localStorage.getItem('meerkat-boostwallet-seed'),
+        announce
+      )
   );
 
   window.addEventListener('beforeunload', (event: any) => {
-
     if (boostPeerConnect) {
-
-      boostPeerConnect?.disconnect(dAppIdentifier)
+      boostPeerConnect?.disconnect(dAppIdentifier);
     }
-  })
+  });
 
   boostPeerConnect.setOnConnect((connectMessage: IConnectMessage) => {
     console.log('connect', connectMessage);
@@ -54,32 +66,28 @@ const Home = () => {
 
     setConnected(
       'Connected to ' +
-      connectMessage.dApp.name +
-      ' (' +
-      connectMessage.dApp.address +
-      ' at: ' +
-      connectMessage.dApp.url +
-      ')'
+        connectMessage.dApp.name +
+        ' (' +
+        connectMessage.dApp.address +
+        ' at: ' +
+        connectMessage.dApp.url +
+        ')'
     );
   });
 
-  boostPeerConnect.setOnDisconnect(
-    (connectMessage: IConnectMessage) => {
-      console.log('disconnect', connectMessage);
+  boostPeerConnect.setOnDisconnect((connectMessage: IConnectMessage) => {
+    console.log('disconnect', connectMessage);
 
-      identicon.current = null;
-      setConnected('Disconnected');
-    }
-  );
+    identicon.current = null;
+    setConnected('Disconnected');
+  });
 
-  boostPeerConnect.setOnServerShutdown(
-    (connectMessage: IConnectMessage) => {
-      console.log('server shutdown', connectMessage);
+  boostPeerConnect.setOnServerShutdown((connectMessage: IConnectMessage) => {
+    console.log('server shutdown', connectMessage);
 
-      identicon.current = null;
-      setConnected('Disconnected');
-    }
-  );
+    identicon.current = null;
+    setConnected('Disconnected');
+  });
 
   boostPeerConnect.setOnApiInject((connectMessage: IConnectMessage) => {
     console.log('on api inject message', connectMessage);
@@ -110,10 +118,9 @@ const Home = () => {
     }
   }, []);
   const connectWithDApp = () => {
+    console.log('connect with dapp');
 
-    console.log('connect with dapp')
-
-    if(boostPeerConnect) {
+    if (boostPeerConnect) {
       const seed = boostPeerConnect.connect(dAppIdentifier);
       localStorage.setItem('meerkat-boostwallet-seed', seed);
     }
@@ -122,9 +129,7 @@ const Home = () => {
   };
 
   const disconnectDApp = () => {
-
-    if(boostPeerConnect) {
-
+    if (boostPeerConnect) {
       boostPeerConnect.disconnect(dAppIdentifier);
     }
   };
@@ -207,32 +212,30 @@ const Home = () => {
                 <IonButton onClick={stopQrScanner} fill="solid">
                   Stop Scanner
                 </IonButton>
-              ) :  connected === 'Disconnected' ? (
+              ) : connected === 'Disconnected' ? (
                 <IonButton onClick={connectWithDApp} fill="solid">
                   Connect
                 </IonButton>
-              ) : <IonButton onClick={disconnectDApp} fill="solid">
-                Disconnect
-              </IonButton>
-              }
+              ) : (
+                <IonButton onClick={disconnectDApp} fill="solid">
+                  Disconnect
+                </IonButton>
+              )}
             </div>
 
             <div>
-              <span style={{ paddingLeft: "4px", textDecoration: 'underline' }}>meerkatAddress: { meerkatAddress }</span>
+              <span style={{ paddingLeft: '4px', textDecoration: 'underline' }}>
+                meerkatAddress: {meerkatAddress}
+              </span>
             </div>
 
-            <div>
-              { connected }
-            </div>
+            <div>{connected}</div>
 
-            { identicon.current &&
-                <div>
-
-                  <img src={ identicon.current } alt={ 'identicon' }/>
-
-                </div>
-            }
-
+            {identicon.current && (
+              <div>
+                <img src={identicon.current} alt={'identicon'} />
+              </div>
+            )}
           </div>
         </div>
       </IonContent>

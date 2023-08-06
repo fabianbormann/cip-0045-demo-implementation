@@ -2,12 +2,12 @@ import {
   CardanoPeerConnect,
   ExperimentalContainer,
 } from '@fabianbormann/cardano-peer-connect';
-import type {
-  Paginate,
-  Cip30DataSignature,
+import {
   Cbor,
-} from '@fabianbormann/cardano-peer-connect/types';
-import { IWalletInfo } from '@fabianbormann/cardano-peer-connect/types';
+  Cip30DataSignature,
+  IWalletInfo,
+  Paginate,
+} from '@fabianbormann/cardano-peer-connect/dist/src/types';
 
 export class DemoWalletConnect extends CardanoPeerConnect {
   private syncTest = (paramA: string, paramB: number) => {
@@ -18,13 +18,17 @@ export class DemoWalletConnect extends CardanoPeerConnect {
     console.log('asyncTest called with: ', arg);
     return arg;
   }
-  constructor(walletInfo: IWalletInfo, seed: string | null, announce: string[], discoverySeed?: string | null) {
-
+  constructor(
+    walletInfo: IWalletInfo,
+    seed: string | null,
+    announce: string[],
+    discoverySeed?: string | null
+  ) {
     super(walletInfo, {
       seed: seed,
       announce: announce,
       discoverySeed: discoverySeed,
-      logLevel: "info"
+      logLevel: 'info',
     });
 
     //these functions and properties will be available under window.cardano['walletname'].experimental

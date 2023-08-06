@@ -12,7 +12,6 @@ import {
 } from '@cardano-foundation/cardano-connect-with-wallet';
 
 const App = () => {
-
   const copyButton = useRef<HTMLDivElement | null>(null);
   const shutdownButton = useRef<HTMLDivElement | null>(null);
   const txSubmitInput = useRef<HTMLInputElement | null>(null);
@@ -91,16 +90,25 @@ const App = () => {
       dAppConnect.current = new DAppPeerConnect({
         dAppInfo: dAppInfo,
         announce: [
-          'https://pro.passwordchaos.gimbalabs.io',
+          /*'https://dev.tracker.cf-identity-wallet.metadata.dev.cf-deployments.org',
           'wss://tracker.files.fm:7073/announce',
           'wss://tracker.btorrent.xyz',
+          'ws://tracker.files.fm:7072/announce',*/
+          'wss://tracker.files.fm:7073/announce',
           'ws://tracker.files.fm:7072/announce',
           'wss://tracker.openwebtorrent.com:443/announce',
+          //'http://tracker.bittorrent.am/announce',
+          'udp://tracker.opentrackr.org:1337',
+          //'https://tracker2.ctix.cn:443',
+          //'https://tracker1.520.jp:443',
+          'udp://opentracker.i2p.rocks:6969',
+          'udp://open.demonii.com:1337',
+          'udp://tracker.openbittorrent.com:6969',
+          //'http://tracker.openbittorrent.com:80',
         ],
         onApiInject: onApiInject,
         onApiEject: onApiEject,
         onConnect: (address: string, walletInfo?: IWalletInfo) => {
-
           clientConnected.current = true;
           clientAddress.current = address;
 
@@ -117,7 +125,7 @@ const App = () => {
           identicon.current = null;
         },
         verifyConnection: verifyConnection,
-        useWalletDiscovery: true
+        useWalletDiscovery: true,
       });
 
       setMeerkatAddress(dAppConnect.current.getAddress());
@@ -142,14 +150,15 @@ const App = () => {
       >
         <h3>Example dApp connecting</h3>
         <div style={{ flexGrow: 1 }} />
-        <ConnectWalletButton
+        {/*<ConnectWalletButton
+          peerConnectEnabled={true}
           supportedWallets={supportedWallets}
           onConnectError={(walletname: string, error: Error) => {
             console.log(walletname, error);
           }}
           borderRadius={6}
           primaryColor="#297373"
-        />
+        />*/}
       </div>
       <div
         style={{
