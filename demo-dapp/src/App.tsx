@@ -90,21 +90,11 @@ const App = () => {
       dAppConnect.current = new DAppPeerConnect({
         dAppInfo: dAppInfo,
         announce: [
-          /*'https://dev.tracker.cf-identity-wallet.metadata.dev.cf-deployments.org',
-          'wss://tracker.files.fm:7073/announce',
-          'wss://tracker.btorrent.xyz',
-          'ws://tracker.files.fm:7072/announce',*/
+          'wss://tracker.openwebtorrent.com',
+          'wss://dev.tracker.cf-identity-wallet.metadata.dev.cf-deployments.org',
           'wss://tracker.files.fm:7073/announce',
           'ws://tracker.files.fm:7072/announce',
           'wss://tracker.openwebtorrent.com:443/announce',
-          //'http://tracker.bittorrent.am/announce',
-          'udp://tracker.opentrackr.org:1337',
-          //'https://tracker2.ctix.cn:443',
-          //'https://tracker1.520.jp:443',
-          'udp://opentracker.i2p.rocks:6969',
-          'udp://open.demonii.com:1337',
-          'udp://tracker.openbittorrent.com:6969',
-          //'http://tracker.openbittorrent.com:80',
         ],
         onApiInject: onApiInject,
         onApiEject: onApiEject,
