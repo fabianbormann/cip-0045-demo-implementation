@@ -17,14 +17,43 @@ The server (dApp) is just a blank VSCode HTML5 template with the following chang
 1. Import cardano-peer-connect in the header
 
 ```html
-<script src="https://fabianbormann.github.io/cardano-peer-connect/bundle.min.js"></script>
+<script src="https://fabianbormann.github.io/cardano-peer-connect/latest/index.js"></script>
 ```
 
 2. Create a new DAppPeerConnect instance, plot the QR code and print the address (identifier)
 
 ```html
 <script>
-  const dAppConnect = new CardanoPeerConnect.DAppPeerConnect();
+  const dAppInfo = {
+    name: 'My awesome DApp',
+    url: 'http://my-awesome-dapp-url.tld/'
+  }
+
+  // Define a function that will be called when the client tries to connect to your DApp.
+  const verifyConnection = (
+    walletInfo,
+    callback
+  ) => {
+    callback(
+      window.confirm(`Do you want to connect to wallet ${walletInfo.name} (${walletInfo.address})?`)
+    );
+  }
+
+  const onApiInject = (api) => {
+    console.log('API injected:', api);
+  };
+
+  const onApiEject = () => {
+    console.log('API ejected');
+  };
+
+  const dAppConnect = new CardanoPeerConnect.DAppPeerConnect({
+    dAppInfo: dAppInfo,
+    verifyConnection: verifyConnection,
+    onApiInject: onApiInject, // will be call when api was successfully injected
+    onApiEject: onApiEject,   // will be call when api was ejected
+  });
+  
   dAppConnect.generateQRCode(document.getElementById('qr-code'));
   document.getElementById('address').innerText = dAppConnect.getAddress();
 </script>
@@ -85,7 +114,7 @@ const connectWithDApp = () => {
   const seed = boostPeerConnect.current.connect(
     dAppIdentifier,
     [
-      'https://pro.passwordchaos.gimbalabs.io',
+      'wss://dev.btt.cf-identity-wallet.metadata.dev.cf-deployments.org',
       'wss://tracker.files.fm:7073/announce',
       'wss://tracker.btorrent.xyz',
       'ws://tracker.files.fm:7072/announce',
